@@ -24,7 +24,8 @@
     "@tensorflow/tfjs": "^1.2.1",
     "core-js": "^2.5.4",
     "rxjs": "~6.2.0",
-    "zone.js": "~0.8.26"
+    "zone.js": "~0.8.26",
+    "lodash": ">=4.17.13"
   },
   "devDependencies": {
     "@angular-devkit/build-angular": "~0.8.0",
