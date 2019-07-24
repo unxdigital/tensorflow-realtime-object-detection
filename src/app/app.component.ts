@@ -14,20 +14,20 @@ export class AppComponent implements OnInit {
   public innerWidth: any;
   public innerHeight: any;
 
-@HostListener('window:resize', ['$event'])
-onResize(event) {
-  this.innerWidth = window.innerWidth;
-  this.innerHeight = window.innerHeight;
-  this.video.width = this.innerWidth;
-  this.video.height = this.innerHeight;
-}
+  @HostListener('window:resize', ['$event'])
+  onResize(event) {
+    this.innerWidth = window.innerWidth;
+    this.innerHeight = window.innerHeight;
+    this.video.width = this.innerWidth;
+    this.video.height = this.innerHeight;
+  }
 
   ngOnInit() {
     this.video = <HTMLVideoElement>document.getElementById('vid');
     this.innerWidth = window.innerWidth;
     this.innerHeight = window.innerHeight;
     this.video.width = this.innerWidth;
-  this.video.height = this.innerHeight;
+    this.video.height = this.innerHeight;
     this.webcam_init();
     this.predictWithCocoModel();
   }
@@ -47,6 +47,12 @@ onResize(event) {
         audio: false,
         video: {
           facingMode: 'user',
+          width: {
+            ideal: 1920
+          },
+          height: {
+            ideal: 1080
+          }
         }
       })
       .then(stream => {
@@ -72,7 +78,6 @@ onResize(event) {
 
   renderPredictions(predictions) {
 
-
     const canvas = <HTMLCanvasElement>document.getElementById('canvas');
 
     const ctx = canvas.getContext('2d');
@@ -82,7 +87,7 @@ onResize(event) {
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     // Font options.
-    const font = '16px sans-serif';
+    const font = '25px "Quicksand"';
     ctx.font = font;
     ctx.textBaseline = 'top';
     ctx.drawImage(this.video, 0, 0, this.innerWidth, this.innerHeight);
@@ -93,15 +98,18 @@ onResize(event) {
       const y = prediction.bbox[1];
       const width = prediction.bbox[2];
       const height = prediction.bbox[3];
+
       // Draw the bounding box.
-      ctx.strokeStyle = '#00FFFF';
-      ctx.lineWidth = 2;
-      ctx.strokeRect(x, y, width, height);
+      this.roundRect(ctx, x, y, width, height, 5, true, true);
+      ctx.lineWidth = 3;
+
       // Draw the label background.
-      ctx.fillStyle = '#00FFFF';
-      const textWidth = ctx.measureText(prediction.class).width + ctx.measureText(prediction.score).width;
+      ctx.fillStyle = 'rgba(50,50,50,0.8)';
+      const textWidth = ctx.measureText(prediction.class).width + ctx.measureText(prediction.score.toFixed(3)).width;
       const textHeight = parseInt(font, 10); // base 10
-      ctx.fillRect(x, y, textWidth + 4, textHeight + 4);
+      ctx.fillRect(x, y, textWidth, textHeight);
+
+
       // Draw the center of the box
       ctx.fillRect(x + width / 2, y + height / 2, 5, 5);
     });
@@ -110,10 +118,65 @@ onResize(event) {
       const x = prediction.bbox[0];
       const y = prediction.bbox[1];
       // Draw the text last to ensure it's on top.
-      ctx.fillStyle = '#000000';
-      //console.log(prediction);
+      ctx.fillStyle = '#FFFFFF';
+      // console.log(prediction);
       ctx.fillText(prediction.class + ' ' + Math.round(prediction.score * 100) / 100, x, y);
     });
+
+  }
+
+  /**
+  * Draws a rounded rectangle using the current state of the canvas.
+  * If you omit the last three params, it will draw a rectangle
+  * outline with a 5 pixel border radius
+  * @param {CanvasRenderingContext2D} ctx
+  * @param {Number} x The top left x coordinate
+  * @param {Number} y The top left y coordinate
+  * @param {Number} width The width of the rectangle
+  * @param {Number} height The height of the rectangle
+  * @param {Number} [radius = 5] The corner radius; It can also be an object
+  *                 to specify different radii for corners
+  * @param {Number} [radius.tl = 0] Top left
+  * @param {Number} [radius.tr = 0] Top right
+  * @param {Number} [radius.br = 0] Bottom right
+  * @param {Number} [radius.bl = 0] Bottom left
+  * @param {Boolean} [fill = false] Whether to fill the rectangle.
+  * @param {Boolean} [stroke = true] Whether to stroke the rectangle.
+  */
+  roundRect(ctx, x, y, width, height, radius?, fill?, stroke?) {
+    if (typeof stroke == 'undefined') {
+      stroke = true;
+    }
+    if (typeof radius === 'undefined') {
+      radius = 5;
+    }
+    if (typeof radius === 'number') {
+      radius = { tl: radius, tr: radius, br: radius, bl: radius };
+    } else {
+      var defaultRadius = { tl: 0, tr: 0, br: 0, bl: 0 };
+      for (var side in defaultRadius) {
+        radius[side] = radius[side] || defaultRadius[side];
+      }
+    }
+    ctx.beginPath();
+    ctx.moveTo(x + radius.tl, y);
+    ctx.lineTo(x + width - radius.tr, y);
+    ctx.quadraticCurveTo(x + width, y, x + width, y + radius.tr);
+    ctx.lineTo(x + width, y + height - radius.br);
+    ctx.quadraticCurveTo(x + width, y + height, x + width - radius.br, y + height);
+    ctx.lineTo(x + radius.bl, y + height);
+    ctx.quadraticCurveTo(x, y + height, x, y + height - radius.bl);
+    ctx.lineTo(x, y + radius.tl);
+    ctx.quadraticCurveTo(x, y, x + radius.tl, y);
+    ctx.closePath();
+    if (fill) {
+      ctx.fillStyle = 'rgba(238,83,53,0.2)';
+      ctx.fill();
+    }
+    if (stroke) {
+      ctx.strokeStyle = 'rgba(238,83,53,0.8)';
+      ctx.stroke();
+    }
 
   }
 }
