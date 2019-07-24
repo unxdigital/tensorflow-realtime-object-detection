@@ -1,4 +1,6 @@
 import { Component, OnInit, HostListener } from '@angular/core';
+import * as generate from 'string-to-color';
+import * as color from 'color';
 
 // import COCO-SSD model as cocoSSD
 import * as cocoSSD from '@tensorflow-models/coco-ssd';
@@ -14,6 +16,7 @@ export class AppComponent implements OnInit {
   public innerWidth: any;
   public innerHeight: any;
   public loadingModel: boolean;
+  public colorScheme: any;
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {
@@ -81,32 +84,39 @@ export class AppComponent implements OnInit {
   renderPredictions(predictions) {
 
     const canvas = <HTMLCanvasElement>document.getElementById('canvas');
-
     const ctx = canvas.getContext('2d');
-
     canvas.width = this.innerWidth;
     canvas.height = this.innerHeight;
-
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
+
     // Font options.
     const font = '22px "Quicksand"';
     ctx.font = font;
     ctx.textBaseline = 'top';
     ctx.drawImage(this.video, 0, 0, this.innerWidth, this.innerHeight);
 
-
     predictions.forEach(prediction => {
+
+      // keep predictions with at less 0.7 accurrate
+      /* const accurrate = 0.7;
+      if (prediction.score < accurrate) {
+        return;
+      } */
+
       const x = prediction.bbox[0];
       const y = prediction.bbox[1];
       const width = prediction.bbox[2];
       const height = prediction.bbox[3];
 
+      // Define color by object class + some number to generate different colors
+      this.colorScheme = generate(prediction.class + ctx.measureText(prediction.class).width);
+
       // Draw the bounding box.
-      this.roundRect(ctx, x, y, width, height, 5, true, true);
+      this.roundRect(ctx, x, y, width, height, 5, true, true, color(this.colorScheme).alpha(0.1));
       ctx.lineWidth = 3;
 
       // Draw the label background.
-      ctx.fillStyle = 'rgba(238,83,53,0.9)';
+      ctx.fillStyle = color(this.colorScheme).alpha(0.8);
       const textWidth = ctx.measureText(prediction.class).width + ctx.measureText(prediction.score.toFixed(3)).width;
       const textHeight = parseInt(font, 10); // base 10
       ctx.fillRect(x, y, textWidth + 2, textHeight + 2);
@@ -117,6 +127,13 @@ export class AppComponent implements OnInit {
     });
 
     predictions.forEach(prediction => {
+
+      // keep predictions with at less 0.7 accurrate
+      /* const accurrate = 0.7;
+      if (prediction.score < accurrate) {
+        return;
+      } */
+
       const x = prediction.bbox[0];
       const y = prediction.bbox[1];
       // Draw the text last to ensure it's on top.
@@ -145,7 +162,7 @@ export class AppComponent implements OnInit {
   * @param {Boolean} [fill = false] Whether to fill the rectangle.
   * @param {Boolean} [stroke = true] Whether to stroke the rectangle.
   */
-  roundRect(ctx, x, y, width, height, radius?, fill?, stroke?) {
+  roundRect(ctx, x, y, width, height, radius?, fill?, stroke?, color?) {
     if (typeof stroke == 'undefined') {
       stroke = true;
     }
@@ -172,11 +189,11 @@ export class AppComponent implements OnInit {
     ctx.quadraticCurveTo(x, y, x + radius.tl, y);
     ctx.closePath();
     if (fill) {
-      ctx.fillStyle = 'rgba(238,83,53,0.2)';
+      ctx.fillStyle = color;
       ctx.fill();
     }
     if (stroke) {
-      ctx.strokeStyle = 'rgba(238,83,53,0.8)';
+      ctx.strokeStyle = color;
       ctx.stroke();
     }
 
