@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, HostListener } from '@angular/core';
 
 // import COCO-SSD model as cocoSSD
 import * as cocoSSD from '@tensorflow-models/coco-ssd';
@@ -11,9 +11,23 @@ import * as cocoSSD from '@tensorflow-models/coco-ssd';
 export class AppComponent implements OnInit {
   title = 'TF-ObjectDetection';
   private video: HTMLVideoElement;
+  public innerWidth: any;
+  public innerHeight: any;
 
+@HostListener('window:resize', ['$event'])
+onResize(event) {
+  this.innerWidth = window.innerWidth;
+  this.innerHeight = window.innerHeight;
+  this.video.width = this.innerWidth;
+  this.video.height = this.innerHeight;
+}
 
   ngOnInit() {
+    this.video = <HTMLVideoElement>document.getElementById('vid');
+    this.innerWidth = window.innerWidth;
+    this.innerHeight = window.innerHeight;
+    this.video.width = this.innerWidth;
+  this.video.height = this.innerHeight;
     this.webcam_init();
     this.predictWithCocoModel();
   }
@@ -28,8 +42,6 @@ export class AppComponent implements OnInit {
   }
 
   webcam_init() {
-    this.video = <HTMLVideoElement>document.getElementById('vid');
-
     navigator.mediaDevices
       .getUserMedia({
         audio: false,
@@ -65,15 +77,15 @@ export class AppComponent implements OnInit {
 
     const ctx = canvas.getContext('2d');
 
-    canvas.width = 600;
-    canvas.height = 600;
+    canvas.width = this.innerWidth;
+    canvas.height = this.innerHeight;
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     // Font options.
     const font = '16px sans-serif';
     ctx.font = font;
     ctx.textBaseline = 'top';
-    ctx.drawImage(this.video, 0, 0, 600, 600);
+    ctx.drawImage(this.video, 0, 0, this.innerWidth, this.innerHeight);
 
 
     predictions.forEach(prediction => {
@@ -99,7 +111,7 @@ export class AppComponent implements OnInit {
       const y = prediction.bbox[1];
       // Draw the text last to ensure it's on top.
       ctx.fillStyle = '#000000';
-      console.log(prediction);
+      //console.log(prediction);
       ctx.fillText(prediction.class + ' ' + Math.round(prediction.score * 100) / 100, x, y);
     });
 
