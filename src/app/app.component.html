@@ -1,5 +1,10 @@
 <div style="text-align:center">
 
+  <div *ngIf="loadingModel">
+    <p>Loading...</p>
+    <img src="assets/spinner.gif" alt="loading">
+  </div>
+
   <video hidden id="vid" width="600" height="600"></video>
   <canvas id="canvas"></canvas>
 

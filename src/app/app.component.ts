@@ -13,6 +13,7 @@ export class AppComponent implements OnInit {
   private video: HTMLVideoElement;
   public innerWidth: any;
   public innerHeight: any;
+  public loadingModel: boolean;
 
   @HostListener('window:resize', ['$event'])
   onResize(event) {
@@ -23,13 +24,13 @@ export class AppComponent implements OnInit {
   }
 
   ngOnInit() {
+    this.loadingModel = true;
     this.video = <HTMLVideoElement>document.getElementById('vid');
     this.innerWidth = window.innerWidth;
     this.innerHeight = window.innerHeight;
     this.video.width = this.innerWidth;
     this.video.height = this.innerHeight;
     this.webcam_init();
-    this.predictWithCocoModel();
   }
 
   public async predictWithCocoModel() {
@@ -37,8 +38,8 @@ export class AppComponent implements OnInit {
     // const model = await cocoSSD.load('mobilenet_v1');
     const model = await cocoSSD.load('lite_mobilenet_v2');
     this.detectFrame(this.video, model, true);
+    this.loadingModel = false;
     console.log('model loaded');
-
   }
 
   webcam_init() {
@@ -59,6 +60,7 @@ export class AppComponent implements OnInit {
         this.video.srcObject = stream;
         this.video.onloadedmetadata = () => {
           this.video.play();
+          this.predictWithCocoModel();
         };
       });
   }
@@ -87,7 +89,7 @@ export class AppComponent implements OnInit {
 
     ctx.clearRect(0, 0, ctx.canvas.width, ctx.canvas.height);
     // Font options.
-    const font = '25px "Quicksand"';
+    const font = '22px "Quicksand"';
     ctx.font = font;
     ctx.textBaseline = 'top';
     ctx.drawImage(this.video, 0, 0, this.innerWidth, this.innerHeight);
@@ -104,10 +106,10 @@ export class AppComponent implements OnInit {
       ctx.lineWidth = 3;
 
       // Draw the label background.
-      ctx.fillStyle = 'rgba(50,50,50,0.8)';
+      ctx.fillStyle = 'rgba(238,83,53,0.9)';
       const textWidth = ctx.measureText(prediction.class).width + ctx.measureText(prediction.score.toFixed(3)).width;
       const textHeight = parseInt(font, 10); // base 10
-      ctx.fillRect(x, y, textWidth, textHeight);
+      ctx.fillRect(x, y, textWidth + 2, textHeight + 2);
 
 
       // Draw the center of the box
