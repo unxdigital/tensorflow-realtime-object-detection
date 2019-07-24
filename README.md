@@ -10,12 +10,8 @@ Tensorflow.js is an open-source library enabling us to define, train and run mac
 ### COCO-SSD MODEL
 First, we have to select the pre-trained model which we are going to use for object detection. Tensorflow.js provides several pre-trained models for classification, pose estimation, speech recognition and object detection purposes. Check out all the [Tensoflow.js pre-trained models](https://github.com/tensorflow/tfjs-models) for more information.
 
-### RUN
-
-This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 6.2.9.
-
-
-Run `ng serve` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
+### RUN LOCALLY
+Run `npm run start:dev` for a dev server. Navigate to `http://localhost:4200/`. The app will automatically reload if you change any of the source files.
 
 ```
 MIT License
