@@ -37,9 +37,9 @@ export class AppComponent implements OnInit {
   }
 
   public async predictWithCocoModel() {
-    const model = await cocoSSD.load('mobilenet_v2');
+    // const model = await cocoSSD.load('mobilenet_v2');
     // const model = await cocoSSD.load('mobilenet_v1');
-    // const model = await cocoSSD.load('lite_mobilenet_v2');
+    const model = await cocoSSD.load('lite_mobilenet_v2');
     this.detectFrame(this.video, model, true);
     this.loadingModel = false;
     console.log('model loaded');
