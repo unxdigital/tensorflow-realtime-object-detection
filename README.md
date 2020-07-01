@@ -6,8 +6,6 @@
 
 ![examples](https://raw.githubusercontent.com/unxdigital/TensorFlowJS-Realtime-Object-Detection/master/example.gif)
 
-## [LIVE DEMO](https://tensorflowjs-live-demo.herokuapp.com/)
-
 ### TENSORFLOW.JS
 Tensorflow.js is an open-source library enabling us to define, train and run machine learning models in the browser, using Javascript. For more information about Tensorflow.js, check out its [official webpage](https://js.tensorflow.org/). I will use Tensorflow.js library in Angular to build a Web App which detects multiple objects on webcam video feed.
 
